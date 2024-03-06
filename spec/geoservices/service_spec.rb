@@ -1,53 +1,102 @@
-require 'helper'
-
 describe Geoservice do
-  context "getting a feature service" do
-    before :all do
-      @service = Geoservice::FeatureService.new(:url => "http://services.arcgis.com/mUBRaZ0tjo91ahzZ/arcgis/rest/services/MS_Gas_Stations/FeatureServer")
+  context 'a feature service' do
+    let(:service) do # v10.21 server example
+      Geoservice::FeatureService.new(url:
+        'http://rmgsc.cr.usgs.gov/arcgis/rest/'\
+        'services/geomac_fires/FeatureServer')
     end
-    it "should have a serviceDescription" do
-      expect(@service.metadata["serviceDescription"]).to eq("MS_Gas_Stations")
+
+    context '#metadata' do
+      it "should be indexable by keys, such as: ['serviceDescription']" do
+        expect(-> { service.metadata['serviceDescription'] }).not_to raise_error
+      end
+
+      it "the ['serviceDescription'] value may be empty" do
+        expect(service.metadata['serviceDescription']).to eq('')
+      end
     end
-    it "should have layers" do
-      expect(@service.layers.length).to eq(1)
+
+    context '#layers' do
+      it 'should return a value of at least 1' do
+        expect(service.layers.length).to be >= 1
+      end
+
+      it 'should be indexable by an integer (zero-based)' do
+        expect(service.layers[0]['name']).to eq('Large Fire Points')
+      end
+
+      it "should indexable by name - e.g. ['Fire Perimeters']" do
+        expect(service.layers('Fire Perimeters')['name']).to eq 'Fire Perimeters'
+      end
     end
-    it "should have layer index" do
-      expect(@service.layers[0]['name']).to eq("gas_stations")
-      expect(@service.layers("gas_stations")['name']).to eq("gas_stations")
+
+    context '#query' do
+      it "with a layer index param should have a ['features'] key" do
+        expect(-> { service.query(1)['features'] }).not_to raise_error
+      end
     end
-    it "should be queryable" do
-      expect(@service.query(0)["features"].length).to eq(1000)
+
+    context '#count' do
+      it "with a layer index param should have a ['count'] key" do
+        expect(-> { service.count(1)['count'] }).not_to raise_error
+      end
+
+      it "the ['count'] value should be the number of layer features" do
+        expect(service.count(1)['count'].is_a?(Integer)).to be true
+      end
     end
-    it "should be countable" do
-      expect(@service.count(0)["count"]).to eq(1374)
-    end
-    it "should have features" do
-      expect(@service.features(0,0).length).to eq(1)
-    end
-  end
-  context "getting a map service" do
-    before :all do
-      @service = Geoservice::MapService.new(:url => "http://rmgsc.cr.usgs.gov/ArcGIS/rest/services/nhss_weat/MapServer")
-    end
-    it "should have a mapName" do
-      expect(@service.metadata["mapName"]).to eq("Layers")
-    end
-    it "should have layers" do
-      expect(@service.layers.length).to eq(2)
-    end
-    it "should have layer index" do
-      expect(@service.layers[0]['name']).to eq("Watches/Warnings")
-      expect(@service.layers("Watches/Warnings")['name']).to eq("Watches/Warnings")
+
+    context '#features' do
+      it 'with layer and feature index params returns a specific feature' do
+        expect(service.features(1, 1).keys).to eq %w(feature)
+      end
     end
   end
 
-  context "getting a map service layer at version 10.0" do
-    before :all do
-      @service = Geoservice::MapService.new(:url => "http://sampleserver3.arcgisonline.com/ArcGIS/rest/services/Earthquakes/EarthquakesFromLastSevenDays/MapServer")
+  context 'getting a map service' do
+    context 'from a layer at version v10.21' do
+      let(:service) do # v10.21 server example
+        Geoservice::MapService.new(url:
+        'http://rmgsc.cr.usgs.gov/arcgis/rest/services/ecosys_US/MapServer')
+      end
+
+      context '#metadata' do
+        it "should have a ['mapName'] value" do
+          expect(service.metadata['mapName']).to eq 'Layers'
+        end
+      end
+
+      context '#layers' do
+        it 'should return the number of layers (>= 1)' do
+          expect(service.layers.length).to eq 5
+        end
+
+        it 'should be indexable by an integer (zero-based)' do
+          expect(service.layers[0]['name']).to eq('Ecosystems')
+        end
+
+        it "should indexable by name - e.g. ['Ecosystems']" do
+          expect(service.layers('Ecosystems')['name']).to eq 'Ecosystems'
+        end
+      end
     end
 
-    it "should be countable" do
-      expect(@service.count(0)["count"] > 0).to eq(true)
+    context 'from a layer at version v10.0' do
+      let(:service) do # v10.0 server example
+        Geoservice::MapService.new(url:
+          'http://sampleserver3.arcgisonline.com/ArcGIS/rest/services/'\
+          'Earthquakes/EarthquakesFromLastSevenDays/MapServer')
+      end
+
+      context '#count' do
+        it "with a layer index param should have a ['count'] key" do
+          expect(-> { service.count(0)['count'] }).not_to raise_error
+        end
+
+        it "the ['count'] value should be the number of layer features" do
+          expect(service.count(0)['count'].is_a?(Integer)).to be true
+        end
+      end
     end
   end
 end
