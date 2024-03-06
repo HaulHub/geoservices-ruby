@@ -60,7 +60,7 @@ puts query["features"]
 
 geoservices-ruby uses RSpec for tests.
 
-    $ rake rspec
+    $ rake spec
 
 ## Requirements
 
