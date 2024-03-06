@@ -1,14 +1,27 @@
-Gem::Specification.new do |s|
-  s.name = "geoservices"
-  s.version = "0.0.13"
+# -*- encoding: utf-8 -*-
+$:.push File.expand_path("../lib", __FILE__)
+require 'geoservices/version'
 
-  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Andrew Turner"]
-  s.autorequire = %q{arcgis}
-  s.date = %q{2015-02-11}
-  s.email = %q{aturner@esri.com}
-  s.files = ["LICENSE.txt", "README.md","lib/geoservices.rb"] + Dir["lib/geoservices/**/*.rb"]
-  s.require_paths = ["lib"]
-  s.rubygems_version = s.version
-  s.summary = %q{A simple wrapper for GeoServices API}
+Gem::Specification.new do |spec|
+  spec.name          = 'geoservices'
+  spec.version       = Geoservice::VERSION
+  spec.authors       = ['Andrew Turner, Bruce Steedman']
+  spec.email         = 'aturner@esri.com'
+
+  spec.summary       = 'A simple wrapper for GeoServices API'
+  spec.description   = 'A simple wrapper for ArcGIS REST (GeoServices) API'
+  spec.homepage      = 'https://github.com/MatzFan/geoservices-ruby'
+  spec.license       = 'APACHE'
+
+  spec.files = `git ls-files -z`.split("\x0").reject do |f|
+    f.match(%r{^(test|spec|features)/})
+  end
+
+  spec.bindir        = 'exe'
+  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.require_paths = ['lib']
+
+  spec.add_development_dependency 'bundler'
+  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'rspec', '~> 3.0'
 end

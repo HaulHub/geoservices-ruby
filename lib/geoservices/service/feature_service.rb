@@ -5,7 +5,6 @@ module Geoservice
     include Geoservice::Queryable
     include Geoservice::Featureable
 
-
     def initialize(options)
       @url = options[:url]
       @token = options.delete(:token)
