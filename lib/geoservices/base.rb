@@ -7,7 +7,6 @@ module Geoservice
 
     def get(path, options = {})
       begin
-        path.gsub!(/%username%/, @username || '')
         uri = URI.parse(path)
         params = { f: 'json' }.merge(options)
         params.merge(token: @token) unless @token.nil? || @token.empty?
@@ -24,7 +23,6 @@ module Geoservice
 
     def post(path, options = {})
       secure = options.delete(:secure) || false
-      path.gsub!(/%username%/, @username || '')
       uri = URI.parse(path)
       http = Net::HTTP.new(uri.host, secure ? 443 : uri.port)
       if secure || uri.scheme == 'https'
